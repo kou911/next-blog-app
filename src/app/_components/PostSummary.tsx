@@ -17,9 +17,7 @@ const PostSummary: React.FC<Props> = (props) => {
   });
   let update: string = "";
   if (post.createdAt != post.updatedAt) {
-    update =
-      "更新されたコンテンツです。最終更新：" +
-      dayjs(post.updatedAt).format(dtFmt);
+    update = "最終更新：" + dayjs(post.updatedAt).format(dtFmt);
   } else {
     update = "";
   }

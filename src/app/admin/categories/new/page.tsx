@@ -50,6 +50,8 @@ const Page: React.FC = () => {
         apiResBody.map((body) => ({
           id: body.id,
           name: body.name,
+          createdAt: "",
+          updatedAt: "",
         }))
       );
     } catch (error) {

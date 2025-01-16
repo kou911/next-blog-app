@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { twMerge } from "tailwind-merge";
+import dayjs from "dayjs";
 
 // カテゴリをフェッチしたときのレスポンスのデータ型
 type RawApiCategoryResponse = {
@@ -41,6 +42,7 @@ const Page: React.FC = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fetchErrorMsg, setFetchErrorMsg] = useState<string | null>(null);
+  const dtFmt = "YYYY-MM-DD";
 
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
@@ -231,122 +233,125 @@ const Page: React.FC = () => {
     );
   }
 
-  return (
-    <main>
-      <div className="mb-4 text-2xl font-bold">投稿記事の編集・削除</div>
+  if (rawApiPostResponse) {
+    return (
+      <main>
+        <div className="mb-4 text-2xl font-bold">投稿記事の編集・削除</div>
+        <div>最終更新{dayjs(rawApiPostResponse.updatedAt).format(dtFmt)}</div>
 
-      {isSubmitting && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="flex items-center rounded-lg bg-white px-8 py-4 shadow-lg">
-            <FontAwesomeIcon
-              icon={faSpinner}
-              className="mr-2 animate-spin text-gray-500"
+        {isSubmitting && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="flex items-center rounded-lg bg-white px-8 py-4 shadow-lg">
+              <FontAwesomeIcon
+                icon={faSpinner}
+                className="mr-2 animate-spin text-gray-500"
+              />
+              <div className="flex items-center text-gray-500">処理中...</div>
+            </div>
+          </div>
+        )}
+
+        <form
+          onSubmit={handleSubmit}
+          className={twMerge("space-y-4", isSubmitting && "opacity-50")}
+        >
+          <div className="space-y-1">
+            <label htmlFor="title" className="block font-bold">
+              タイトル
+            </label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              className="w-full rounded-md border-2 px-2 py-1"
+              value={newTitle}
+              onChange={updateNewTitle}
+              placeholder="タイトルを記入してください"
+              required
             />
-            <div className="flex items-center text-gray-500">処理中...</div>
           </div>
-        </div>
-      )}
 
-      <form
-        onSubmit={handleSubmit}
-        className={twMerge("space-y-4", isSubmitting && "opacity-50")}
-      >
-        <div className="space-y-1">
-          <label htmlFor="title" className="block font-bold">
-            タイトル
-          </label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            className="w-full rounded-md border-2 px-2 py-1"
-            value={newTitle}
-            onChange={updateNewTitle}
-            placeholder="タイトルを記入してください"
-            required
-          />
-        </div>
-
-        <div className="space-y-1">
-          <label htmlFor="content" className="block font-bold">
-            本文
-          </label>
-          <textarea
-            id="content"
-            name="content"
-            className="h-48 w-full rounded-md border-2 px-2 py-1"
-            value={newContent}
-            onChange={updateNewContent}
-            placeholder="本文を記入してください"
-            required
-          />
-        </div>
-
-        <div className="space-y-1">
-          <label htmlFor="coverImageURL" className="block font-bold">
-            カバーイメージ (URL)
-          </label>
-          <input
-            type="url"
-            id="coverImageURL"
-            name="coverImageURL"
-            className="w-full rounded-md border-2 px-2 py-1"
-            value={newCoverImageURL}
-            onChange={updateNewCoverImageURL}
-            placeholder="カバーイメージのURLを記入してください"
-            required
-          />
-        </div>
-
-        <div className="space-y-1">
-          <div className="font-bold">タグ</div>
-          <div className="flex flex-wrap gap-x-3.5">
-            {checkableCategories!.length > 0 ? (
-              checkableCategories!.map((c) => (
-                <label key={c.id} className="flex space-x-1">
-                  <input
-                    id={c.id}
-                    type="checkbox"
-                    checked={c.isSelect}
-                    className="mt-0.5 cursor-pointer"
-                    onChange={() => switchCategoryState(c.id)}
-                  />
-                  <span className="cursor-pointer">{c.name}</span>
-                </label>
-              ))
-            ) : (
-              <div>選択可能なカテゴリが存在しません。</div>
-            )}
+          <div className="space-y-1">
+            <label htmlFor="content" className="block font-bold">
+              本文
+            </label>
+            <textarea
+              id="content"
+              name="content"
+              className="h-48 w-full rounded-md border-2 px-2 py-1"
+              value={newContent}
+              onChange={updateNewContent}
+              placeholder="本文を記入してください"
+              required
+            />
           </div>
-        </div>
 
-        <div className="flex justify-end space-x-2">
-          <button
-            type="submit"
-            className={twMerge(
-              "rounded-md px-5 py-1 font-bold",
-              "bg-indigo-500 text-white hover:bg-indigo-600",
-              "disabled:cursor-not-allowed"
-            )}
-            disabled={isSubmitting}
-          >
-            記事を更新
-          </button>
+          <div className="space-y-1">
+            <label htmlFor="coverImageURL" className="block font-bold">
+              カバーイメージ (URL)
+            </label>
+            <input
+              type="url"
+              id="coverImageURL"
+              name="coverImageURL"
+              className="w-full rounded-md border-2 px-2 py-1"
+              value={newCoverImageURL}
+              onChange={updateNewCoverImageURL}
+              placeholder="カバーイメージのURLを記入してください"
+              required
+            />
+          </div>
 
-          <button
-            type="button"
-            className={twMerge(
-              "rounded-md px-5 py-1 font-bold",
-              "bg-red-500 text-white hover:bg-red-600"
-            )}
-            // onClick={handleDelete}
-          >
-            削除
-          </button>
-        </div>
-      </form>
-    </main>
-  );
+          <div className="space-y-1">
+            <div className="font-bold">タグ</div>
+            <div className="flex flex-wrap gap-x-3.5">
+              {checkableCategories!.length > 0 ? (
+                checkableCategories!.map((c) => (
+                  <label key={c.id} className="flex space-x-1">
+                    <input
+                      id={c.id}
+                      type="checkbox"
+                      checked={c.isSelect}
+                      className="mt-0.5 cursor-pointer"
+                      onChange={() => switchCategoryState(c.id)}
+                    />
+                    <span className="cursor-pointer">{c.name}</span>
+                  </label>
+                ))
+              ) : (
+                <div>選択可能なカテゴリが存在しません。</div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-2">
+            <button
+              type="submit"
+              className={twMerge(
+                "rounded-md px-5 py-1 font-bold",
+                "bg-indigo-500 text-white hover:bg-indigo-600",
+                "disabled:cursor-not-allowed"
+              )}
+              disabled={isSubmitting}
+            >
+              記事を更新
+            </button>
+
+            <button
+              type="button"
+              className={twMerge(
+                "rounded-md px-5 py-1 font-bold",
+                "bg-red-500 text-white hover:bg-red-600"
+              )}
+              // onClick={handleDelete}
+            >
+              削除
+            </button>
+          </div>
+        </form>
+      </main>
+    );
+  }
 };
 
 export default Page;

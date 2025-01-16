@@ -119,9 +119,7 @@ const Page: React.FC = () => {
   const didupdate = (category: Category) => {
     let update: string = "";
     if (category.createdAt != category.updatedAt) {
-      update =
-        " 更新されたコンテンツです。最終更新：" +
-        dayjs(category.updatedAt).format(dtFmt);
+      update = " 最終更新：" + dayjs(category.updatedAt).format(dtFmt);
     } else {
       update = "";
     }
